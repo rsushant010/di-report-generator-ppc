@@ -74,20 +74,6 @@ with col1:
         label_visibility="collapsed"
     )
 
-# with col2:
-#     st.markdown("**📅 2. Select Date(s)**") # Using markdown instead of header
-#     report_type = st.radio("Report Type", [ "Single Day","Date Range"], horizontal=True)
-
-#     if report_type == "Date Range":
-#         c1, c2 = st.columns(2)
-#         with c1:
-#             date_start = st.date_input("Start Date", datetime.now().date())
-#         with c2:
-#             date_end = st.date_input("End Date", datetime.now().date())
-#     else:  # Single Day
-#         date_start = st.date_input("Select Date", datetime.now().date())
-#         date_end = date_start
-
 
 with col2:
     st.markdown("**📅 2. Select Date(s)**")  # Using markdown instead of header
@@ -120,20 +106,95 @@ btn_col1, btn_col2 = st.columns(2)
 with btn_col1:
     process_button = st.button("🚀 Generate Report", type="primary", use_container_width=True)
 
+# with btn_col2:
+#     if 'processed_data' in st.session_state:
+#         output = BytesIO()
+#         with pd.ExcelWriter(output, engine='openpyxl') as writer:
+#             for sheet_name, df in st.session_state['processed_data'].items():
+#                 df.to_excel(writer, sheet_name=sheet_name, index=True)
+
+#         st.download_button(
+#             label="📥 Download Excel Report",
+#             data=output.getvalue(),
+#             file_name=st.session_state.get('file_name', 'DI_Report.xlsx'),
+#             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+#             use_container_width=True
+#         )
+
+
+
+# Check if data exists
+# if 'processed_data' in st.session_state:
+#     sheet_name_to_download = "Summary"  # Change this to the sheet you want
+
+#     if sheet_name_to_download in st.session_state['processed_data']:
+#         output = BytesIO()
+#         with pd.ExcelWriter(output, engine='openpyxl') as writer:
+#             # Write only the selected sheet
+#             st.session_state['processed_data'][sheet_name_to_download].to_excel(
+#                 writer, sheet_name=sheet_name_to_download, index=True
+#             )
+
+#         st.download_button(
+#             label=f"📥 Download '{sheet_name_to_download}' Sheet",
+#             data=output.getvalue(),
+#             file_name=f"{sheet_name_to_download}.xlsx",
+#             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+#             use_container_width=True
+#         )
+#     else:
+#         st.warning(f"Sheet '{sheet_name_to_download}' not found in processed data.")
+
+
 with btn_col2:
     if 'processed_data' in st.session_state:
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            for sheet_name, df in st.session_state['processed_data'].items():
-                df.to_excel(writer, sheet_name=sheet_name, index=True)
+        # Create 2 columns for side-by-side buttons
+        col1, col2 = st.columns(2)
 
-        st.download_button(
-            label="📥 Download Excel Report",
-            data=output.getvalue(),
-            file_name=st.session_state.get('file_name', 'DI_Report.xlsx'),
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True
-        )
+        # --- Button 1: Download All Reports ---
+        with col1:
+            output_all = BytesIO()
+            with pd.ExcelWriter(output_all, engine='openpyxl') as writer:
+                for sheet_name, df in st.session_state['processed_data'].items():
+                    df.to_excel(writer, sheet_name=sheet_name, index=True)
+
+            st.download_button(
+                label="📥 Download All Reports",
+                data=output_all.getvalue(),
+                file_name=st.session_state.get('file_name', 'DI_Report.xlsx'),
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
+
+        # --- Button 2: Download Analysis Report (final_df / Summary only) ---
+        with col2:
+            sheet_name_to_download = "Summary"  # Sheet to download
+            if sheet_name_to_download in st.session_state['processed_data']:
+                output_summary = BytesIO()
+                with pd.ExcelWriter(output_summary, engine='openpyxl') as writer:
+                    st.session_state['processed_data'][sheet_name_to_download].to_excel(
+                        writer, sheet_name=sheet_name_to_download, index=True
+                    )
+
+                # --- Compute dynamic file name based on selected dates ---
+                if date_start == date_end:
+                    file_date = date_start.strftime('%d-%m-%Y')                   
+                    file_name = f"Di Dashboard ({file_date}) Analysis Points.xlsx"
+                else:
+                    file_d_start = date_start.strftime('%d-%m-%Y')
+                    file_d_end = date_end.strftime('%d-%m-%Y')
+                    file_name = f"Di Dashboard ({file_d_start}_to_{file_d_end}) Analysis Points.xlsx"
+
+                # --- Download button ---
+                st.download_button(
+                    label="📥 Download Analysis Report",
+                    data=output_summary.getvalue(),
+                    file_name=file_name,
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True
+                )
+
+
 
 # --- Main App Logic (No changes needed here) ---
 if process_button:
@@ -193,8 +254,7 @@ if process_button:
                     # --- Generate filename based on date selection ---
                 if date_start == date_end:
                     # Format for a single day report
-                    formatted_date = date_start.strftime('%d-%m-%Y')
-                    
+                    formatted_date = date_start.strftime('%d-%m-%Y')                   
                     file_name = f"Di Dashboard ({formatted_date}) Analysis Points.xlsx"
                 else:
                     # Format for a date range report
