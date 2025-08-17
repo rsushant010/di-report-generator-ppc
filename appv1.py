@@ -255,7 +255,7 @@ if process_button:
                 if date_start == date_end:
                     # Format for a single day report
                     formatted_date = date_start.strftime('%d-%m-%Y')                   
-                    file_name = f"Di Dashboard ({formatted_date}) Analysis Points.xlsx"
+                    file_name = f"{formatted_date} cummulative report.xlsx"
                 else:
                     # Format for a date range report
                     formatted_start = date_start.strftime('%d-%m-%Y')
@@ -268,3 +268,4 @@ if process_button:
             except Exception as e:
                 st.error(f"An error occurred: {e}")
                 st.exception(e)
+
