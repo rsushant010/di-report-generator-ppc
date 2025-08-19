@@ -130,8 +130,8 @@ def process_for_date(date, df_raw):
     owg_db["actual_rw"] = owg_db.iloc[:,0]
     # owg_db["description_rw"] = owg_db.iloc[:, 0].astype(str) + " MT Net Rejection."
     owg_db["description_rw"] = add_str_if_not_empty(owg_db.iloc[:,0]," Net Rejection.","after")
-
-    # Finishing line DB
+    
+        # Finishing line DB
     fl_db = df_raw.iloc[fl_unit_index:fl_total_index, fl_key_col + fl_dict]
     fl_db.columns = df_raw.iloc[fl_unit_index-1, fl_key_col + fl_dict]
     fl_db = replace_empty_like_values(fl_db)
@@ -139,18 +139,24 @@ def process_for_date(date, df_raw):
     col2 = fl_db.iloc[:, 2].astype(str).str.upper()
     fl_db.iloc[:,4] = append_word_if_missing(fl_db.iloc[:,4],["Pcs"])
     fl_db.iloc[:,6] = append_word_if_missing(fl_db.iloc[:,6],["Mins"])
-
+    
+    # --- MODIFIED LINE ---
+    # Checks if the value in the first column is not empty.
+    # If it has a value, it concatenates the index with the first column.
+    # Otherwise, it concatenates the index with the second column.
     fl_db["unit_dia"] = np.where(
-        fl_db.iloc[:, 0].notna() & (col2.str.strip() != ""),
+        col0.str.strip() != '',
         fl_db.index + " " + col0,
         fl_db.index + " " + col2
     )
+    # --- END MODIFIED LINE ---
+    
     fl_db["standard"] = "<10 pcs"
     fl_db["actual"] = fl_db.iloc[:,4]
-
+    
     fl_db["description_rw"] = add_str_if_not_empty(fl_db.iloc[:, 4],"Production loss ","before").astype(str) + ". " + fl_db.iloc[:, 5].astype(str)
     # fl_db["pd_loss_description"] = "Production loss " + fl_db.iloc[:, 4].astype(str) + " Pcs. " + fl_db.iloc[:, 5].astype(str)
-
+    
     fl_db["unit_dia_bd"] = fl_db["unit_dia"]
     fl_db["standard_bd"] ="0 Mins"
     fl_db["actual_bd"] = fl_db.iloc[:,6]
@@ -158,6 +164,7 @@ def process_for_date(date, df_raw):
     fl_db["bd_description"] = add_str_if_not_empty(fl_db.iloc[:, 6],"Breakdown for ","before")
     fl_db["bd_description"] = fl_db["bd_description"].astype(str) + "."
 
+    
     # Coating line DB
     cl_db = df_raw.iloc[cl_unit_index:cl_total_index, cl_key_col + cl_dict]
     cl_db.columns = df_raw.iloc[cl_unit_index-1, cl_key_col + cl_dict]
@@ -192,5 +199,6 @@ def process_for_date(date, df_raw):
         df["date"] = date
 
     return prod_db, rj_db, lwg_db, owg_db, fl_db, cl_db, cf_db
+
 
 
