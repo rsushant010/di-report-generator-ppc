@@ -106,46 +106,6 @@ btn_col1, btn_col2 = st.columns(2)
 with btn_col1:
     process_button = st.button("🚀 Generate Report", type="primary", use_container_width=True)
 
-# with btn_col2:
-#     if 'processed_data' in st.session_state:
-#         output = BytesIO()
-#         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-#             for sheet_name, df in st.session_state['processed_data'].items():
-#                 df.to_excel(writer, sheet_name=sheet_name, index=True)
-
-#         st.download_button(
-#             label="📥 Download Excel Report",
-#             data=output.getvalue(),
-#             file_name=st.session_state.get('file_name', 'DI_Report.xlsx'),
-#             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-#             use_container_width=True
-#         )
-
-
-
-# Check if data exists
-# if 'processed_data' in st.session_state:
-#     sheet_name_to_download = "Summary"  # Change this to the sheet you want
-
-#     if sheet_name_to_download in st.session_state['processed_data']:
-#         output = BytesIO()
-#         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-#             # Write only the selected sheet
-#             st.session_state['processed_data'][sheet_name_to_download].to_excel(
-#                 writer, sheet_name=sheet_name_to_download, index=True
-#             )
-
-#         st.download_button(
-#             label=f"📥 Download '{sheet_name_to_download}' Sheet",
-#             data=output.getvalue(),
-#             file_name=f"{sheet_name_to_download}.xlsx",
-#             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-#             use_container_width=True
-#         )
-#     else:
-#         st.warning(f"Sheet '{sheet_name_to_download}' not found in processed data.")
-
-
 with btn_col2:
     if 'processed_data' in st.session_state:
         # Create 2 columns for side-by-side buttons
@@ -268,4 +228,5 @@ if process_button:
             except Exception as e:
                 st.error(f"An error occurred: {e}")
                 st.exception(e)
+
 
